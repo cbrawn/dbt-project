@@ -1,13 +1,9 @@
-
--- Welcome to your first dbt model!
--- Did you know that you can also configure models directly within
--- the SQL file? This will override configurations stated in dbt_project.yml
-
--- Try changing 'view' to 'table', then re-running dbt
-{{ config(materialized='table') }}
-
-
-
+{{
+	config(
+		materialized='incremental',
+		unique_key='BILLING_DOCUMENT'
+	)
+}}
 SELECT BILLING_DOCUMENT, BILLING_ITEM, SOURCE_SYSTEM_ID, FISCAL_YEAR, POSTING_PERIOD, BILLING_TYPE,
     DESCRIPTION_OF_BILLING_TYPE,
     BILL_TO_PARTY,
@@ -58,3 +54,7 @@ SELECT BILLING_DOCUMENT, BILLING_ITEM, SOURCE_SYSTEM_ID, FISCAL_YEAR, POSTING_PE
     NET_VALUE_OF_THE_BILLING_ITEM_IN_DOCUMENT_CURRENCY,
     TAX_AMOUNT_IN_DOCUMENT_CURRENCY__ST,
     SALES_REP_CODE FROM "PC_STITCH_DB"."BILLING"."BILLING_INFO"
+	
+{% if is_incremental() %}
+	WHERE DATE_ON_WHICH_THE_RECORD_WAS_CREATED > (select max(DATE_ON_WHICH_THE_RECORD_WAS_CREATED) from {{ this }})
+{% endif %}
