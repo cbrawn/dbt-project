@@ -58,5 +58,5 @@ SELECT BILLING_DOCUMENT, BILLING_ITEM, SOURCE_SYSTEM_ID, FISCAL_YEAR, POSTING_PE
 	CREATED FROM "PC_STITCH_DB"."BILLING"."BILLING_INFO"
 	
 {% if is_incremental() %}
-	CREATED > (select max(CREATED) from {{ this }})
+	WHERE CREATED > (select max(CREATED) from {{ this }})
 {% endif %}
